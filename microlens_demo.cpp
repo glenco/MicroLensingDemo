@@ -26,7 +26,7 @@ int main(int arg,char **argv){
   const long Nstars = 100000;
   const double zl = 0.5;  // redshift of lens
   const double zs = 1.0;  // redshift of source
-  const int Ninit = 5000;  // initioal size of grid of rays
+  const int Ninit = 1000;  // initioal size of grid of rays
   const double kappa_star = 1;  // optical depth
   const double mass = 1;         /// star mass in solar masses
   
@@ -48,7 +48,7 @@ int main(int arg,char **argv){
     s.x[0] = r*cos(theta) + center[0];
     s.x[1] = r*sin(theta) + center[1];
     s.x[2] = 0;  // in a plane perpendicular to the line of sight
-    s.Mass = 1.0;
+    s.Mass = mass;
   }
   
   LensHaloParticles<StarType> lens_halo(stars,zl,cosmo,rotation,false,0,false);
@@ -56,9 +56,10 @@ int main(int arg,char **argv){
   Lens lens(&seed,zs,cosmo);
   lens.moveinMainHalo(lens_halo,true);
   
-  Grid grid(&lens,Ninit,center.x,1.5 * 2 * R / cosmo.angDist(zl) );
+  GridMap grid(&lens,Ninit,center.x, Ninit * Re / cosmo.angDist(zl) / 10 );
   
-  grid.writePixelFits(Ninit,INVMAG,"!inverse_mag.fits");
+  PixelMap map = grid.writePixelMapUniform(INVMAG);
+  map.printFITS("!inverse_mag.fits");
 }
 
 
