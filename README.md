@@ -1,5 +1,6 @@
 # MicroLensingDemo
 
+![On the left is the inverse magnification and on the right is an image of a lensed Gaussian source.  The convergence in stars is 1 here.](image.png)
 
 This is a simple program to demonstrate how to do microlensing calculations with GLAMER.
 
