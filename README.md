@@ -1,6 +1,7 @@
 # MicroLensingDemo
 
-![On the left is the inverse magnification and on the right is an image of a lensed Gaussian source.  The convergence in stars is 1 here.](image.png)
+![](image.png)
+*On the left is a map of the inverse magnification.  White contours are the critical curves.  On the right is part of an image of a lensed Gaussian source. The convergence in stars is 1 for both.*
 
 This is a simple program to demonstrate how to do microlensing calculations with GLAMER.
 
