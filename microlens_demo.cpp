@@ -73,10 +73,15 @@ int main(int arg,char **argv){
   
   map.printFITS("!source_image.fits");
   
+  // Let's add a little background shear and convergence
+  Point_2d shear(0.01,0);
+  double kappa = 0.001;
+  LensHaloUniform background(zl,kappa,shear,cosmo);
+  lens.insertMainHalo(background,false);
   
-  // make a light curve 
-  double velocity = 1000*kmpersecTOmpcperday/Dl;
-  Point_2d direction(1,1);
+  // make a light curve
+  double velocity = 1000*kmpersecTOmpcperday/Dl; // relative speed of source
+  Point_2d direction(1,1);  // direction the source moves in
   direction.unitize();
   
   for(int day = 0 ; day < 200 ; ++day){
@@ -84,6 +89,8 @@ int main(int arg,char **argv){
     brightness = grid.RefreshSurfaceBrightnesses(&source);
     std::cout << day << " " << brightness << std::endl;
   }
+  
+ 
   
   
 }
