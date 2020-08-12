@@ -35,7 +35,6 @@ int main(int arg,char **argv){
   double Re = sqrt( 1.0 / cosmo.SigmaCrit(zl,zs)/ PI );  // Einstein radius of stars
   double Rphys = Re * sqrt( mass * Nstars / kappa_star);      // radius of region to but stars in
   
-  
   //long seed = -11920;
   long seed = time(&t);
   Utilities::RandomNumbers_NR ran(seed);
@@ -62,10 +61,12 @@ int main(int arg,char **argv){
   lens.moveinMainHalo(lens_halo,true);
   lens.insertMainHalo(disk,false);
   
-  
   //GridMap grid(&lens,Ninit,center.x, Ninit * Re / cosmo.angDist(zl) / 10 );
   GridMap grid(&lens,Ninit,center.x, 3*Rphys/cosmo.angDist(zl) );
-  
+
+  // This makes a nice image of the inverse magnification
+  // if you cut off the pixel values < -500 and use a histogram
+  // scaling
   PixelMap map = grid.writePixelMapUniform(INVMAG);
   map.printFITS("!inverse_mag.fits");
   grid.writeFitsUniform(KAPPA,"!kappa.fits");
@@ -74,6 +75,33 @@ int main(int arg,char **argv){
   grid.writeFitsUniform(ALPHA1,"!alpha1.fits");
   grid.writeFitsUniform(ALPHA,"!alpha.fits");
 
+  double Dl = cosmo.angDist(zl);
+  
+  // make a source with a Gaussian profile
+  SourceGaussian source(center,  Re / Dl,zl);
+
+  // print an image of the source
+  double brightness = grid.RefreshSurfaceBrightnesses(&source);
+  map = grid.getPixelMap(1);
+  
+  map.printFITS("!source_image.fits");
+  
+  // Let's add a little background shear and convergence
+  Point_2d shear(0.01,0);
+  double kappa = 0.001;
+  LensHaloUniform background(zl,kappa,shear,cosmo);
+  lens.insertMainHalo(background,false);
+  
+  // make a light curve
+  double velocity = 1000*kmpersecTOmpcperday/Dl; // relative speed of source
+  Point_2d direction(1,1);  // direction the source moves in
+  direction.unitize();
+  
+  for(int day = 0 ; day < 200 ; ++day){
+    source.setTheta( center + direction*velocity*day);
+    brightness = grid.RefreshSurfaceBrightnesses(&source);
+    std::cout << day << " " << brightness << std::endl;
+  }
 }
 
 
